@@ -1,9 +1,12 @@
 import express from 'express';
-import { register, login, logout } from '../controller/authController.js';
+import { register, login, logout, getUserProfile, updateProfile } from '../controller/authController.js';
+import { authenticate, authorize } from '../middleware/authMiddleware.js';
 
 export const authRouter = express.Router();
-
 
 authRouter.post("/register",register);
 authRouter.post("/logout",logout);
 authRouter.post("/login", login);
+authRouter.get("/profile", authenticate, getUserProfile);
+authRouter.put("/profile/update", authenticate, updateProfile);
+authRouter.get("/check", authenticate, getUserProfile); // might need update 
