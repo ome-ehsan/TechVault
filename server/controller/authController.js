@@ -8,16 +8,16 @@ export const register = async (req,res)=>{
     try{
         const { email, name , password, phone } = req.body;
         if (!name || !email || !password || !phone){ 
-            return res.status(400).json({ msg : "all fields are required"})
+            return res.status(400).json({ msg : "All fields are required"})
         };
         if (password.length < 6){ 
             return res.status(400).json( {
-            msg : "password length must be at least 6 characters or more"
+            msg : "Password length must be at least 6 characters or more"
         })
         };
         //check whether user exists or not
         const user = await User.findOne({email});
-        if (user){ return res.status(400).json( {msg:"user already exists"} )};
+        if (user){ return res.status(400).json( {msg:"User already exists"} )};
 
         //hash pass
         const salt = await bcrypt.genSalt(10);
@@ -43,10 +43,53 @@ export const register = async (req,res)=>{
                 role : newUser.role
             });
         } else{
-            return res.status(400).json( {msg : "invalid user data"})
+            return res.status(400).json( {msg : "Invalid user data"})
         }
     }catch(err){
         console.log(`Sign up error : ${err.message}`);
-        return res.status(500).json({ msg : "internal server error"});
+        return res.status(500).json({ msg : "Internal server error"});
     }
 };
+
+export const login = async (req,res)=>{
+    //fetch email and pass
+    const {email, password} = req.body;
+try{
+
+    //check if credentials exist
+    if(!email || !password){
+        return res.status(400).json( {msg : "Invalid credentials"} );
+    };
+    //check if user exists
+    const user = await User.findOne({email});
+    if(!user){
+        return res.status(400).json( {msg : "Account doesn't exist"} );
+    };
+    //check if its valid
+    const isValidPass = await bcrypt.compare(password, user.password); 
+    if(!isValidPass){
+        return res.status(400).json( {msg : "Invalid credentials"} );
+    };
+
+    generateJWT(user._id,res);
+    return res.status(200).json({
+        _id : user._id,
+        email : user.email,
+        name : user.name,
+        role : user.role
+    });
+}catch(err){
+    console.log(`Login up error : ${err.message}`);
+    return res.status(500).json({ msg : "internal server error"});
+}
+};
+
+export const logout = async (req,res)=>{
+    try {
+        res.cookie("jwt","", { maxAge : 0 });
+        return res.status(200).json( { msg : "Logged out successfully"});
+    } catch (error) {
+        console.log(`Logout error : ${error.message}`);
+        return res.status(500).json({ msg : "Internal server error"});
+    }
+}
