@@ -20,10 +20,4 @@ export const useAuthStore = create( (set,get)=> ({
     },
     
 
-
-
-
-
-
-
 }));
