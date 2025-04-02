@@ -29,12 +29,12 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-sm fixed w-full z-10">
+    <nav className="bg-[#1E1E2E] shadow-md fixed w-full z-10 border-b border-gray-700">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left side Logo*/}
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-blue-600">TechVault</span>
+            <span className="text-2xl font-bold text-cyan-400">TechVault</span>
           </Link>
 
           {/* Right side Navigation */}
@@ -47,7 +47,7 @@ const Navbar = () => {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
+                      className="flex items-center gap-2 text-gray-300 hover:text-cyan-400 transition-colors"
                     >
                       {link.icon}
                       <span>{link.name}</span>
@@ -58,7 +58,7 @@ const Navbar = () => {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
+                      className="flex items-center gap-2 text-gray-300 hover:text-cyan-400 transition-colors"
                     >
                       {link.icon}
                       <span>{link.name}</span>
@@ -68,7 +68,7 @@ const Navbar = () => {
                   {/* Notification*/}
                   <button
                     onClick={() => toast('No new notifications')}
-                    className="relative text-gray-600 hover:text-blue-600"
+                    className="relative text-gray-300 hover:text-cyan-400"
                   >
                     <Bell size={20} />
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -81,24 +81,24 @@ const Navbar = () => {
                 <div className="relative">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                    className="flex items-center gap-2 text-gray-300 hover:text-cyan-400"
                   >
                     <User size={20} />
                     <span>{authUser.name}</span>
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 border">
+                    <div className="absolute right-0 mt-2 w-48 bg-[#2A2A3A] rounded-md shadow-lg py-2 border border-gray-600">
                       <Link
                         to={authUser.role === 'admin' ? '/admin/profile' : '/profile'}
-                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:bg-gray-700"
                       >
                         <User size={16} />
                         Profile
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        className="w-full text-left flex items-center gap-2 px-4 py-2 text-gray-300 hover:bg-gray-700"
                       >
                         <LockKeyhole size={16} />
                         Logout
@@ -112,21 +112,21 @@ const Navbar = () => {
               <div className="flex items-center gap-4">
                 <Link
                   to="/login"
-                  className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                  className="flex items-center gap-2 text-gray-300 hover:text-cyan-400"
                 >
                   <LockKeyhole size={20} />
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                  className="flex items-center gap-2 text-gray-300 hover:text-cyan-400"
                 >
                   <User size={20} />
                   Sign Up
                 </Link>
                 <Link
                   to="/admin/login"
-                  className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                  className="flex items-center gap-2 text-gray-300 hover:text-cyan-400"
                 >
                   <LayoutDashboard size={20} />
                   Admin
