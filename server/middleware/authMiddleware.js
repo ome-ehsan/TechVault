@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import bcrypt from "bcryptjs";
 import { User } from "../model/userModel.js";
 dotenv.config();
 
@@ -22,11 +23,19 @@ export const authenticate = async ( req , res , next ) => {
 };
 
 
-// export const authorize = (role) => {
-//     return (req,res,next) => {
-//         if ( !req.user || req.user.role != role ){
-//             return res.status(403).json({ msg : "Access Denied"});
-//         }
-//         next();
-//     }
-// };
+export const authorizeAdmin = async (req,res,next)=> {
+    try {
+        if( req.body.role === 'admin' && req.body.adminKey){
+            const isValidKey = await bcrypt.compare(process.env.ADMIN_KEY, req.body.adminKey); 
+            if(!isValidKey){
+                return res.status(400).json( {msg : "Invalid Admin Key"} );
+            };
+            delete req.body.adminKey;
+            return next();
+        }
+        next();
+    } catch (error) {
+        console.log("Admin Authorization error", error.message);
+        return res.status(500).json( {msg : "Internal server error"});
+    }
+}
