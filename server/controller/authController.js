@@ -6,7 +6,7 @@ import { generateJWT } from "../utils/jwtConfig.js";
 export const register = async (req,res)=>{
 
     try{
-        const { email, name , password, phone } = req.body;
+        const { email, name , password, phone, role } = req.body;
         if (!name || !email || !password || !phone){ 
             return res.status(400).json({ msg : "All fields are required"})
         };
@@ -28,7 +28,8 @@ export const register = async (req,res)=>{
             email,
             name,
             password : hashedPassword,
-            phone
+            phone,
+            role : role !== undefined ? role : "customer"
         });
 
         if(newUser){
