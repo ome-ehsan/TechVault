@@ -125,7 +125,7 @@ const Navbar = () => {
                   Sign Up
                 </Link>
                 <Link
-                  to="/admin/login"
+                  to="/admin/signup"
                   className="flex items-center gap-2 text-gray-300 hover:text-cyan-400"
                 >
                   <LayoutDashboard size={20} />

@@ -7,7 +7,8 @@ import { Toaster } from "react-hot-toast"
 import { Routes,Route, Navigate } from "react-router-dom"
 import LoginPage from "./pages/LoginPage"
 import SignUpPage from "./pages/SignUpPage"
-import AdminLoginPage from "./pages/AdminLoginPage"
+import AdminSignUpPage from "./pages/AdminSignUpPage"
+import AdminDashboardPage from "./pages/AdminDashboardPage"
 import ProductPage from "./pages/ProductPage"
 
 
@@ -44,7 +45,7 @@ const App = () => {
 
             <Route path="/login" element ={ !authUser ? <LoginPage/> : <Navigate to="/" /> }/>
             <Route path="/signup" element ={ !authUser ? <SignUpPage/> : <Navigate to="/" /> }/>
-            <Route path="/admin/login" element = { !authUser ? <AdminLoginPage/> : <Navigate to="/" /> }/>
+            <Route path="/admin/signup" element = { !authUser ? <AdminSignUpPage/> : <Navigate to="/" /> }/>
 
         </Routes>
       <Toaster position="top-right"/>
