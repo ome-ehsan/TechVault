@@ -8,6 +8,8 @@ import { Routes,Route, Navigate } from "react-router-dom"
 import LoginPage from "./pages/LoginPage"
 import SignUpPage from "./pages/SignUpPage"
 import AdminLoginPage from "./pages/AdminLoginPage"
+import ProductPage from "./pages/ProductPage"
+
 
 
 const App = () => {
@@ -43,7 +45,7 @@ const App = () => {
             <Route path="/login" element ={ !authUser ? <LoginPage/> : <Navigate to="/" /> }/>
             <Route path="/signup" element ={ !authUser ? <SignUpPage/> : <Navigate to="/" /> }/>
             <Route path="/admin/login" element = { !authUser ? <AdminLoginPage/> : <Navigate to="/" /> }/>
-            
+
         </Routes>
       <Toaster position="top-right"/>
     </div>

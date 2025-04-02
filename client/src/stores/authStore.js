@@ -10,7 +10,7 @@ export const useAuthStore = create( (set,get)=> ({
     isSigning : false,
     checkAuth : async ()=> {
         try {
-            const res = axiosInstance.get("/auth/check");
+            const res = await axiosInstance.get("/auth/check");
             set( { authUser : res.data});
         } catch (error) {
             console.log( "Error in authentication", error);
@@ -23,11 +23,11 @@ export const useAuthStore = create( (set,get)=> ({
     login : async (formData)=> {
         set( {isLogging : true});
         try {
-            const res = axiosInstance.post("/auth/login",formData);
+            const res = await axiosInstance.post("/auth/login",formData);
             set({authUser: res.data});
-            toast.success(res.data.msg);
+            toast.success(res.data.msg || "Logged in successfully");
         } catch (error) {
-            toast(error.response.data.msg)
+            toast.error(error.response.data.msg)
         }finally{
             set({ isLogging : false});
         }
@@ -35,18 +35,18 @@ export const useAuthStore = create( (set,get)=> ({
     signUp : async (formData)=> {
         set( {isSigning : true});
         try {
-            const res = axiosInstance.post("/auth/register",formData);
+            const res = await axiosInstance.post("/auth/register",formData);
             set({authUser: res.data});
-            toast.success(res.data.msg);
+            toast.success(res.data.msg || "Signed up successfully");
         } catch (error) {
-            toast(error.response.data.msg)
+            toast.error(error.response.data.msg)
         }finally{
             set({ isSigning : false});
         }
     },
     logout : async ()=> {
         try {
-            const res = axiosInstance.post("/auth/logout");
+            const res = await axiosInstance.post("/auth/logout");
             set({ authUser : null});
             toast.success(res.data.msg);
         } catch (error) {
