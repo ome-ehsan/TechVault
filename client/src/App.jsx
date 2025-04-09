@@ -46,7 +46,8 @@ const App = () => {
             <Route path="/login" element ={ !authUser ? <LoginPage/> : <Navigate to="/" /> }/>
             <Route path="/signup" element ={ !authUser ? <SignUpPage/> : <Navigate to="/" /> }/>
             <Route path="/admin/signup" element = { !authUser ? <AdminSignUpPage/> : <Navigate to="/" /> }/>
-
+            <Route path="/admin/products" element = { authUser ? <ProductPage/> : <Navigate to="/login" />} />
+            <Route path="/products" element = { authUser ? <ProductPage/> : <Navigate to="/login" />} />
         </Routes>
       <Toaster position="top-right"/>
     </div>
