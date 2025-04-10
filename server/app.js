@@ -17,7 +17,7 @@ app.use(cors({
 }));
 app.use("/api/auth",authRouter);
 app.use("/api/product", productRouter)
-//addProductsToDB(gpuData);
+
 
 app.listen( port, ()=>{
     console.log("Server started on port", port);

@@ -10,7 +10,6 @@ export const getProducts = async (req, res) => {
       minWarranty,
       maxWarranty,
       available,
-      brand,
       sort,
       order,
       page = 1,
@@ -22,6 +21,10 @@ export const getProducts = async (req, res) => {
 
     if (search) {
       query.name = { $regex: search, $options: 'i' };
+    }
+    
+    if(category){
+      query.category = category;
     }
 
     if (priceMin || priceMax) {
@@ -40,6 +43,8 @@ export const getProducts = async (req, res) => {
       query.quantity = { $gt: 0 };
     }
 
+
+
     // Apply category-specific filters
     for (const spec in specFilters) {
       query[`specification.${spec}`] = specFilters[spec];
@@ -53,7 +58,7 @@ export const getProducts = async (req, res) => {
     if (sort && allowedSortFields.includes(sort)) {
       sortOptions[sort] = order === 'desc' ? -1 : 1;
     }
-    console.log(query)
+
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     

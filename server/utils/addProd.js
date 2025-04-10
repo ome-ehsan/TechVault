@@ -1,5 +1,5 @@
 import { Product } from '../model/productModel.js';
-import { gpuData } from './prodData.js';
+
 
 export async function addProductsToDB(productsData) {
     try {
