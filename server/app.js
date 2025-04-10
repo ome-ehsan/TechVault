@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors'
 import { connectDB } from './utils/dbConfig.js';
 import { authRouter } from './routes/authRoutes.js';
+import { productRouter } from './routes/productRoutes.js';
 dotenv.config();
 
 const port = process.env.PORT || 8001;
@@ -15,6 +16,7 @@ app.use(cors({
     credentials: true
 }));
 app.use("/api/auth",authRouter);
+app.use("/api/product", productRouter)
 
 
 app.listen( port, ()=>{
