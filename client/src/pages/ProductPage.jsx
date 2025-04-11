@@ -93,12 +93,12 @@ const ProductPage = () => {
 
   // will handle in future 
   const handleAddToCart = (productId) => {
-    if(authUser?.role === 'admin') return
+    if(authUser?.role === 'admin') return   /// MEMEBER 2 (Imtiaj's)
     toast.success('Added to cart')
   }
 
   const handleAddToWishlist = (productId) => {
-    if(authUser?.role === 'admin') return
+    if(authUser?.role === 'admin') return   
     toast.success('Added to wishlist')
   }
 
