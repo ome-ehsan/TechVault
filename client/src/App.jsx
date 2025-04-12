@@ -10,6 +10,10 @@ import SignUpPage from "./pages/SignUpPage"
 import AdminSignUpPage from "./pages/AdminSignUpPage"
 import AdminDashboardPage from "./pages/AdminDashboardPage"
 import ProductPage from "./pages/ProductPage"
+import CheckoutPage from "./pages/CheckoutPage"
+import PaymentSuccess from "./pages/PaymentSuccess"
+import PaymentFailure from "./pages/PaymentFailure"
+import OrderPage from "./pages/OrderPage"
 
 
 
@@ -48,6 +52,10 @@ const App = () => {
             <Route path="/admin/signup" element = { !authUser ? <AdminSignUpPage/> : <Navigate to="/" /> }/>
             <Route path="/admin/products" element = { authUser ? <ProductPage/> : <Navigate to="/login" />} />
             <Route path="/products" element = { authUser ? <ProductPage/> : <Navigate to="/login" />} />
+            <Route path="/checkout" element = { authUser ? <CheckoutPage/> : <Navigate to="/login" />} />
+            <Route path="/success" element = { authUser? <PaymentSuccess/> : <Navigate to="/login"/>} />
+            <Route path="/failure" element = { authUser? <PaymentFailure/> : <Navigate to="/login"/>} />
+            <Route path="/orders" element = { authUser? <OrderPage/> : <Navigate to="/login"/>} />
         </Routes>
       <Toaster position="top-right"/>
     </div>
