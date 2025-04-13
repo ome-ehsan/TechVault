@@ -155,7 +155,7 @@ export const sslController = async ( req,res)=> {
 export const paymentSuccessController = async (req, res) => {
   try {
     const { tran_id } = req.body;
-    const orderId = tran_id.split("-")[1];
+    const orderId = tran_id.split("-")[1]; // could pass the user id too to clear cart if payment is successful
     await Order.findByIdAndUpdate(orderId, { paymentStatus : "paid", tranId: tran_id});
     res.redirect(`http://localhost:5173/success`);
   } catch (error) {
