@@ -43,7 +43,7 @@ const App = () => {
   return (
     <div>
       <Navbar/>
-        {/* Routing */}
+        {/* roouting */}
         <Routes>
 
             <Route path="/" element={

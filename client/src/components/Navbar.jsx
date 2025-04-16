@@ -41,7 +41,7 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             {authUser ? (
               <>
-                {/* Role-based links */}
+                {/* role-based links */}
                 <div className="hidden md:flex items-center gap-4">
                   {authUser.role === 'customer' && customerLinks.map((link) => (
                     <Link
