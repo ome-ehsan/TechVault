@@ -1,5 +1,6 @@
 import { Order } from "../model/orderModel.js";
 import { Product } from "../model/productModel.js";
+import { User } from "../model/userModel.js";
 import SSLCommerzPayment from 'sslcommerz-lts';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -175,3 +176,119 @@ export const paymentFailureController = async (req, res) => {
     res.redirect("http://localhost:5173");
   }
 };
+
+//imtiaj: 
+// add cart : adds to users model db in cart section but validates with product db model
+//clear cart : clears from user model's cart
+
+
+export const addToCartController = async (req, res) => {
+  try {
+    const userId = req.user._id; // assuming you're using middleware to populate req.user
+    const { productId, quantity } = req.body;
+
+    // Basic validation
+    if (!productId || !quantity ) {
+      return res.status(400).json({ msg: "Product ID and valid quantity are required." });
+    }
+
+    // Check if the product exists and has enough stock
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ msg: "Product not found." });
+    }
+
+    if (quantity > product.quantity) {
+      return res.status(400).json({ msg: `Insufficient Stock` });
+    }
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found." });
+    }
+
+    // Check if the product already exists in the cart
+    const cartItemIndex = user.cart.findIndex(item => item.productId.toString() === productId);
+
+    if (cartItemIndex > -1) {
+      // Update existing cart item
+      user.cart[cartItemIndex].quantity += quantity;
+
+      // Optional: Check again if it exceeds stock after updating
+      if (user.cart[cartItemIndex].quantity > product.quantity) {
+        return res.status(400).json({ msg: `Exceeds available stock. Only ${product.quantity} available.` });
+      }
+    } else {
+      // Add new item to cart
+      user.cart.push({
+        productId: product._id,
+        name: product.name,
+        quantity: quantity
+      });
+    }
+
+    await user.save();
+    res.status(200).json({ msg: "Item added to cart.", cart: user.cart });
+  } catch (err) {
+    console.error("Add to Cart Error:", err);
+    res.status(500).json({ msg: "Server error while adding to cart." });
+  }
+};
+
+export const clearCartController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ msg: "User not found." });
+
+    user.cart = [];
+    await user.save();
+
+    res.status(200).json({ msg: "Cart cleared successfully." });
+  } catch (err) {
+    console.error("Clear Cart Error:", err);
+    res.status(500).json({ msg: "Server error while clearing cart." });
+  }
+};
+
+
+export const reduceCartItemController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { productId, quantity } = req.body;
+
+    if (!productId || !quantity || quantity <= 0) {
+      return res.status(400).json({ msg: "Product ID and valid quantity are required." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ msg: "User not found." });
+
+    const cartItemIndex = user.cart.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (cartItemIndex === -1) {
+      return res.status(404).json({ msg: "Item not found in cart." });
+    }
+
+    // Reduce quantity
+    user.cart[cartItemIndex].quantity -= quantity;
+
+    if (user.cart[cartItemIndex].quantity <= 0) {
+      // Remove item if quantity becomes 0 or negative
+      user.cart.splice(cartItemIndex, 1);
+    }
+
+    await user.save();
+    res.status(200).json({ msg: "Cart updated successfully.", cart: user.cart });
+  } catch (err) {
+    console.error("Reduce Cart Item Error:", err);
+    res.status(500).json({ msg: "Server error while updating cart." });
+  }
+};
+
+
+

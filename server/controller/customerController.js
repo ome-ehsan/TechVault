@@ -18,6 +18,7 @@ export const updateProfile = async (req, res) => {
         // };
 
         // apply updates
+        console.log(updates);
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { $set: updates },
