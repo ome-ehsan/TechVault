@@ -11,7 +11,7 @@ const AdminDashboardPage = () => {
   const [editProductId, setEditProductId] = useState(null);
   const [editedProduct, setEditedProduct] = useState({});
 
-  // Fetch products
+  // fetch produts
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -25,7 +25,7 @@ const AdminDashboardPage = () => {
     fetchProducts();
   }, []);
 
-  // Fetch customers
+  // fetch customers
   // useEffect(() => {
   //   const fetchCustomers = async () => {
   //     try {
