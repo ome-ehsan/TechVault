@@ -14,6 +14,13 @@ import CheckoutPage from "./pages/CheckoutPage"
 import PaymentSuccess from "./pages/PaymentSuccess"
 import PaymentFailure from "./pages/PaymentFailure"
 import OrderPage from "./pages/OrderPage"
+import CustomerProfile from "./pages/CustomerProfile"
+import CartPage from "./pages/CartPage"
+
+
+
+
+
 
 
 
@@ -56,6 +63,10 @@ const App = () => {
             <Route path="/success" element = { authUser? <PaymentSuccess/> : <Navigate to="/login"/>} />
             <Route path="/failure" element = { authUser? <PaymentFailure/> : <Navigate to="/login"/>} />
             <Route path="/orders" element = { authUser? <OrderPage/> : <Navigate to="/login"/>} />
+            <Route path="/cart" element={ <CartPage /> } />
+
+
+            <Route path="/profile" element = { authUser? <CustomerProfile/> : <Navigate to="/login"/>} />
         </Routes>
       <Toaster position="top-right"/>
     </div>

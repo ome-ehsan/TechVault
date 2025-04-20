@@ -185,7 +185,8 @@ export const paymentFailureController = async (req, res) => {
 export const addToCartController = async (req, res) => {
   try {
     const userId = req.user._id; // assuming you're using middleware to populate req.user
-    const { productId, quantity } = req.body;
+    const { productId, quantity, price } = req.body;
+    console.log(req.body)
 
     // Basic validation
     if (!productId || !quantity ) {
@@ -224,11 +225,13 @@ export const addToCartController = async (req, res) => {
       user.cart.push({
         productId: product._id,
         name: product.name,
-        quantity: quantity
+        price: product.price * quantity,
+        quantity: quantity || 1
       });
     }
 
     await user.save();
+    console.log(user.cart);
     res.status(200).json({ msg: "Item added to cart.", cart: user.cart });
   } catch (err) {
     console.error("Add to Cart Error:", err);
