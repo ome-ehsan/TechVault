@@ -16,7 +16,7 @@ export const getProducts = async (req, res) => {
       limit = 8,
       ...specFilters
     } = req.query;
-
+    console.log(req.query);
     let query = {};
 
     if (search) {
@@ -72,6 +72,7 @@ export const getProducts = async (req, res) => {
       .lean();
 
     // Success
+    // console.log(products)
     res.status(200).json({
       products,
       page: parseInt(page),

@@ -1,6 +1,5 @@
-// components/FilterBar.jsx
 import { useState, useEffect } from 'react'
-import {categoryToSpecMap} from '../../../shared/categoryToSpecMap'
+import { categoryToSpecMap } from '../../../shared/categoryToSpecMap'
 
 const FilterBar = ({ 
   selectedCategory,
@@ -33,6 +32,16 @@ const FilterBar = ({
     }))
   }
 
+  const handlePriceChange = (type, value) => {
+    // Convert empty values to undefined instead of empty string
+    const priceValue = value === '' ? undefined : value
+    
+    setActiveFilters(prev => ({
+      ...prev,
+      [type]: priceValue
+    }))
+  }
+
   return (
     <div className="w-72 bg-gray-800 p-4 rounded-xl h-fit sticky top-24">
       {/* Category Selection */}
@@ -55,6 +64,28 @@ const FilterBar = ({
         </div>
       </div>
 
+      {/* Price Filter */}
+      <div className="mb-6">
+        <h4 className="text-gray-100 font-medium mb-2">Price Range (BDT)</h4>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Min"
+            value={activeFilters.priceMin || ''}
+            onChange={e => handlePriceChange('priceMin', e.target.value)}
+            className="w-full px-3 py-1 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <span className="text-gray-300">-</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={activeFilters.priceMax || ''}
+            onChange={e => handlePriceChange('priceMax', e.target.value)}
+            className="w-full px-3 py-1 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
       {/* Dynamic Filters */}
       {selectedCategory && (
         <div className="space-y-6">
@@ -71,7 +102,7 @@ const FilterBar = ({
                   >
                     <input
                       type="checkbox"
-                      checked={activeFilters[filterKey]?.includes(option)}
+                      checked={activeFilters[filterKey]?.includes(option) || false}
                       onChange={() => handleFilterToggle(filterKey, option)}
                       className="form-checkbox h-4 w-4 text-blue-500 rounded focus:ring-blue-500"
                     />
