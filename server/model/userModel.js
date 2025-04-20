@@ -21,6 +21,12 @@ const userSchema = new mongoose.Schema(
     phone: String,
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Notification" }],
+    cart: [{
+      productId: {type: mongoose.Schema.Types.ObjectId, ref: "Product"},
+      name: { type : String, required:true},   
+      quantity: { type : Number, required:true},
+      price: { type: Number, required: false}
+    }]
   },
   { timestamps: true } 
 );

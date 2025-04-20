@@ -86,9 +86,14 @@ const ProductPage = () => {
   }
 
   // will handle in future 
-  const handleAddToCart = (productId) => {
-    if(authUser?.role === 'admin') return
-    toast.success('Added to cart')
+  const handleAddToCart = async (productId,price) => {
+    try {
+      const res = await axiosInstance.post("/payment/cart/add", {productId, quantity: 1, price});
+      toast.success(res.data.msg);
+    } catch (error) {
+      toast.error(error.response?.data?.msg || "Something went wrong!");
+    }
+
   }
 
   const handleAddToWishlist = (productId) => {
@@ -184,8 +189,11 @@ const ProductPage = () => {
 
                         {authUser?.role !== 'admin' && (
                         <button
-                        onClick={() => handleAddToCart(product._id)}
-                        className="p-2 
+
+                        onClick={() => handleAddToCart(product._id,product.price)}
+                        //disabled={authUser?.role !== 'admin'}
+                        className="p-2 disabled:opacity-50 disabled:cursor-not-allowed
+
                           bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
                       >
                         <ShoppingCart size={20} />
