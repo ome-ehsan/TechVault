@@ -1,7 +1,32 @@
 import { Link } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
+import { axiosInstance } from '../libs/axios';
+import { useAuthStore } from '../stores/authStore';
+import { useEffect } from 'react';
+
 
 const PaymentSuccess = () => {
+
+  useEffect(() => {
+    const handleDeleteCart = async () => {
+      try {
+        const dbRes = await axiosInstance.put("/product/reduce");
+        toast.success(dbRes.data.msg);
+  
+        const res = await axiosInstance.delete("/payment/cart/clear");
+        toast.success(res.data.msg);
+  
+        console.log("DB Update:", dbRes);
+        console.log("Cart Clear:", res);
+      } catch (error) {
+        console.error("Error in handleDeleteCart:", error);
+        toast.error(error?.response?.data?.msg || 'Error updating cart.');
+      }
+    };
+  
+    handleDeleteCart();
+  }, []);
+  
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
