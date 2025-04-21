@@ -33,7 +33,7 @@ const ProductPage = () => {
     try {
       setLoading(true)
       
-      // Create a clean query params object
+ 
       const queryParams = {
         search: searchTerm,
         page: pagination.page,
@@ -41,13 +41,13 @@ const ProductPage = () => {
         category: selectedCategory
       }
       
-      // Handle price filters separately
+      
       if (activeFilters.priceMin) queryParams.priceMin = activeFilters.priceMin
       if (activeFilters.priceMax) queryParams.priceMax = activeFilters.priceMax
       
-      // Handle array filters properly
+      
       Object.entries(activeFilters).forEach(([key, value]) => {
-        // Skip price filters as we already handled them
+        
         if (key !== 'priceMin' && key !== 'priceMax' && Array.isArray(value)) {
           queryParams[key] = value
         }
@@ -55,7 +55,7 @@ const ProductPage = () => {
 
       const { data } = await axiosInstance.get('/product/search', {
         params: queryParams,
-        // Ensure arrays are properly serialized
+        
         paramsSerializer: params => {
           const query = new URLSearchParams()
           for (const key in params) {
@@ -129,14 +129,14 @@ const ProductPage = () => {
             />
           </div>
 
-          {/* Loading State */}
+          {/* loadin stat*/}
           {loading && (
             <div className="flex justify-center mt-12">
               <Loader2 className="animate-spin text-blue-500 h-12 w-12" />
             </div>
           )}
 
-          {/* Products grid */}
+          {/* prod grid */}
           {!loading && (
             <>
               {products.length === 0 ? (
@@ -228,7 +228,7 @@ const ProductPage = () => {
             </>
           )}
 
-          {/* Product details Modal */}
+          {/* product details Modal */}
           {selectedProduct && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
               <div className="bg-gray-800 rounded-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">

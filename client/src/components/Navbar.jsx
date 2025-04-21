@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { Bell, User, LockKeyhole, ShoppingCart, Heart, LayoutDashboard, Package, Users } from 'lucide-react';
+import { Bell, User, LockKeyhole, ShoppingCart, Heart, LayoutDashboard, Package, Users, ListOrdered } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
@@ -20,6 +20,7 @@ const Navbar = () => {
     { path: '/cart', name: 'Cart', icon: <ShoppingCart size={20} /> },
     { path: '/wishlist', name: 'Wishlist', icon: <Heart size={20} /> },
     { path: '/products', name: 'Products', icon: <Package size={20} /> },
+    { path: '/orders', name: 'Orders', icon: <ListOrdered size={20} /> }
   ];
   // admin links
   const adminLinks = [
