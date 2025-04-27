@@ -16,7 +16,7 @@ export const getProducts = async (req, res) => {
       limit = 8,
       ...specFilters
     } = req.query;
-
+    console.log(req.query);
     let query = {};
 
     if (search) {
@@ -72,6 +72,7 @@ export const getProducts = async (req, res) => {
       .lean();
 
     // Success
+    // console.log(products)
     res.status(200).json({
       products,
       page: parseInt(page),
@@ -84,3 +85,30 @@ export const getProducts = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
+export const updateDB = async (req, res) => {
+  try {
+    const cart = req.user?.cart;
+
+    if (!cart || cart.length === 0) {
+      return res.status(400).json({ success: false, msg: "Cart is empty." });
+    }
+
+    for (let item of cart) {
+      const product = await Product.findById(item.productId);
+      
+      if (product) {
+        const canDeduct = Math.min(product.quantity, item.quantity);
+        product.quantity -= canDeduct;
+        await product.save();
+      }
+    }
+
+    return res.status(200).json({ success: true, msg: "Successfully updated product stock." });
+  } catch (error) {
+    console.error('Error updating product DB:', error);
+    return res.status(500).json({ success: false, msg: 'Internal server error' });
+  }
+};
+

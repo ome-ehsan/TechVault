@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { Trash2, Loader2, Plus, Minus, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../libs/axios';
 
 const CartPage = () => {
@@ -10,6 +10,7 @@ const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [updatingCart, setUpdatingCart] = useState(false);
   const [updatedCart, setUpdatedCart] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -71,6 +72,16 @@ const CartPage = () => {
   };
 
 
+  const handleDeleteCart = async ()=> {
+    try {
+      const res = await axiosInstance.delete("/payment/cart/clear");
+        toast.success(res.data.msg);
+        await checkAuth();
+    } catch (error) {
+      toast.error(error?.response?.data?.msg || 'Error updating cart.');
+    }
+  }
+
   const handleUpdateCart = async () => {
     try {
       setUpdatingCart(true);
@@ -81,23 +92,27 @@ const CartPage = () => {
         quantity
       }));
 
-      const res = await axiosInstance.post("/cart/add", { updates });
+      const res = await axiosInstance.post("/payment/cart/add", { updates });
 
       if (res.data.success) {
+
         toast.success('Cart updated successfully!');
       
+        toast.success(res.data.msg);
+        // Refresh auth to get the updated cart
+
         await checkAuth();
       } else {
-        toast.error('Failed to update the cart.');
+        toast.error( err?.response?.data?.msg || 'Failed to update the cart.');
       }
     } catch (err) {
       console.error('Error updating cart', err);
-      toast.error('Error updating cart.');
+      toast.error(err?.response?.data?.msg||'Error updating cart.');
     } finally {
       setUpdatingCart(false);
     }
   };
-
+  
   const total = cartItems.reduce(
     (sum, item) => sum + (item.price || 0) * item.quantity,
     0
@@ -213,10 +228,6 @@ const CartPage = () => {
                 <span className="text-gray-300">Subtotal:</span>
                 <span className="font-medium">Tk {total.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-300">Shipping:</span>
-                <span className="font-medium">Tk 0</span>
-              </div>
               <div className="border-t border-gray-700 pt-4 mt-4">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total:</span>
@@ -243,10 +254,18 @@ const CartPage = () => {
                   'Update Cart'
                 )}
               </button>
+
+              <button
+                className="bg-cyan-600 hover:bg-cyan-700 px-6 py-3 rounded-lg transition-colors"
+                onClick={handleDeleteCart}
+                disabled={updatingCart}
+              >
+                Clear Cart
+              </button>
               
               <button
                 className="bg-cyan-600 hover:bg-cyan-700 px-6 py-3 rounded-lg transition-colors"
-                onClick={() => toast.success('Checkout functionality coming soon!')}
+                onClick={() => navigate('/checkout')}
                 disabled={updatingCart}
               >
                 Proceed to Checkout

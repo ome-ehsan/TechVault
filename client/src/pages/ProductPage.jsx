@@ -23,43 +23,39 @@ const ProductPage = () => {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchProducts()
+      console.log(activeFilters)
     }, 500)
 
     return () => clearTimeout(delayDebounce)
-  }, [searchTerm, pagination.page,selectedCategory,activeFilters])
+  }, [searchTerm, pagination.page, selectedCategory, activeFilters])
 
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      // const { data } = await axiosInstance.get('/product/search', {
-      //   params: {
-      //     search: searchTerm,
-      //     page: pagination.page,
-      //     limit: 8,
-      //     category : selectedCategory,
-      //     ...activeFilters
-      //   }
-      // })
-
-/////EDITED///////////////
-      const filterParams = {}
-      Object.entries(activeFilters).forEach(([key, values]) => {
-        values.forEach(value => {
-          if (!filterParams[key]) filterParams[key] = []
-          filterParams[key].push(value)
-        })
-      })
-
+      
+ 
       const queryParams = {
         search: searchTerm,
         page: pagination.page,
         limit: 8,
-        category: selectedCategory,
-        ...filterParams
+        category: selectedCategory
       }
+      
+      
+      if (activeFilters.priceMin) queryParams.priceMin = activeFilters.priceMin
+      if (activeFilters.priceMax) queryParams.priceMax = activeFilters.priceMax
+      
+      
+      Object.entries(activeFilters).forEach(([key, value]) => {
+        
+        if (key !== 'priceMin' && key !== 'priceMax' && Array.isArray(value)) {
+          queryParams[key] = value
+        }
+      })
 
       const { data } = await axiosInstance.get('/product/search', {
         params: queryParams,
+        
         paramsSerializer: params => {
           const query = new URLSearchParams()
           for (const key in params) {
@@ -72,9 +68,7 @@ const ProductPage = () => {
           }
           return query.toString()
         }
-      });
-////////////////////////////////
-
+      })
 
       setProducts(data.products || [])
       setPagination({
@@ -99,6 +93,7 @@ const ProductPage = () => {
     } catch (error) {
       toast.error(error.response?.data?.msg || "Something went wrong!");
     }
+
   }
 
   const handleAddToWishlist = async (productId) => {
@@ -142,14 +137,14 @@ const ProductPage = () => {
             />
           </div>
 
-          {/* Loading State */}
+          {/* loadin stat*/}
           {loading && (
             <div className="flex justify-center mt-12">
               <Loader2 className="animate-spin text-blue-500 h-12 w-12" />
             </div>
           )}
 
-          {/* Products grid */}
+          {/* prod grid */}
           {!loading && (
             <>
               {products.length === 0 ? (
@@ -193,8 +188,7 @@ const ProductPage = () => {
                         {authUser?.role !== 'admin' && (
                           <button
                           onClick={() => handleAddToWishlist(product._id)}
-                          //disabled={authUser?.role !== 'admin'}
-                          className="p-2 disabled:opacity-50 disabled:cursor-not-allowed
+                          className="p-2 
                             bg-gray-700 hover:bg-gray-600 text-red-400 rounded-lg"
                         >
                           <Heart size={20} />
@@ -203,9 +197,11 @@ const ProductPage = () => {
 
                         {authUser?.role !== 'admin' && (
                         <button
+
                         onClick={() => handleAddToCart(product._id,product.price)}
                         //disabled={authUser?.role !== 'admin'}
                         className="p-2 disabled:opacity-50 disabled:cursor-not-allowed
+
                           bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
                       >
                         <ShoppingCart size={20} />
@@ -240,8 +236,7 @@ const ProductPage = () => {
             </>
           )}
 
-          {/* Product details Modal */}
-          { /* Modal to hand;e prod detals */}
+          {/* product details Modal */}
           {selectedProduct && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
               <div className="bg-gray-800 rounded-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
