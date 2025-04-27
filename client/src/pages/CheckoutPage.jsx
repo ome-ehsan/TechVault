@@ -9,70 +9,32 @@ import { Loader2 } from 'lucide-react';
 const CheckoutPage = () => {
     //collect frm cust
     const [ cart, setCart ] = useState([]);  // cart contains an array of objs(product, name, price, quantity)
-    const {authUser} = useAuthStore();
+    //const [ loading, setLoading ] = useState(false);
+    const {authUser, checkAuth } = useAuthStore();
     
     const disMap = { "bronze" : 0, "silver" : 5, "gold" : 10 };
-    const loyaltyLevel = authUser.loyaltyLevel;
+    const loyaltyLevel = authUser.loyaltyLevel || "bronze";
 
-    // callting the cart api to return data 
-    // useEffect(()=>{
-    //     const fetchCart = async () => {
-    //         try {
-    //             const res= await axiosInstance.get('/cart');
-    //             setCart(res.data.items);
-    //         } catch (error) {
-    //             toad.error('Error fetching cart data');
-    //         }
-    //         };
-    //         fetchCart();
-    // }, []);
-
-    /// TESTING DATA 
     useEffect(() => {
-      const mockCart = [
-          {
-              _id: '67f6872579bcc1a0d81934cc',
-              name: 'NVIDIA GeForce RTX 3080 10GB GDDR6X',
-              price: 95000,
-              quantity: 1,
-              warranty: 2,
-              img: 'https://lh5.googleusercontent.com/Yu2sFj8p6s4a8WJ-rXfZ9M4QBkugwBSJ0z8b…',
-              category: 'GPU',
-          },
-          {
-              _id: '67f6872579bcc1a0d81934cf',
-              name: 'ASUS Dual GeForce RTX 4070 Super OC Edition 12GB',
-              price: 81000,
-              quantity: 2,
-              warranty: 2,
-              img: 'https://www.pchouse.com.bd/image/cache/catalog/ASUS/81cl8Wsp0uL._AC_SX…',
-              category: 'GPU',
-          },
-          {
-              _id: '67f6872579bcc1a0d81934d1',
-              name: 'ASRock Radeon RX 7900 XTX 24GB GDDR6',
-              price: 125000,
-              quantity: 1,
-              warranty: 2,
-              img: 'https://www.asrock.com/Graphics-Card/photo/Radeon%20RX%207900%20XTX%20…',
-              category: 'GPU',
-          },
-          {
-              _id: '67f7a32edce7ce8cbbf773fa',
-              name: 'AMD Ryzen 9 5950X',
-              price: 47500,
-              quantity: 1,
-              warranty: 2,
-              img: '', // no image provided
-              category: 'CPU',
-          },
-      ];
-      setCart(mockCart);
-  }, []);  
-    //// TESTING DATA ENDS
+      const handleFetchCart = async () => {
+        try {
+          await checkAuth();
+          setCart(authUser?.cart);
+        } catch (error) {
+          toast.error(error?.response?.data?.msg || 'Error fething cart.');
+        }
+      };
+  
+      handleFetchCart();
+    }, []);
+
+
+
+    
 
     // discount related calcs
     const calculateTotals = () => {
+        console.log(cart)
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
         const discount = (subtotal * disMap[loyaltyLevel]) / 100
         const shipping = loyaltyLevel === 'Gold' ? 0 : 150 // Example shipping cost
@@ -147,13 +109,14 @@ const CheckoutPage = () => {
         try {
             // for ssl commerz
             const items = cart.map(item => ({
-                productId: item._id,
+                productId: item.productId,
                 name: item.name,   
                 quantity: item.quantity,
               }));
             // obj to send to the order api
             const orderInfo = {
                 items,
+                customerInfo,
                 shippingInfo
             };
             

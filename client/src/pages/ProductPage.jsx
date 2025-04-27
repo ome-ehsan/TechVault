@@ -337,7 +337,7 @@ const ProductPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      
+
       const queryParams = {
         search: searchTerm,
         page: pagination.page,
@@ -345,10 +345,15 @@ const ProductPage = () => {
         category: selectedCategory
       }
       
+
+      
       if (activeFilters.priceMin) queryParams.priceMin = activeFilters.priceMin
       if (activeFilters.priceMax) queryParams.priceMax = activeFilters.priceMax
-
+      
+      
       Object.entries(activeFilters).forEach(([key, value]) => {
+        
+
         if (key !== 'priceMin' && key !== 'priceMax' && Array.isArray(value)) {
           queryParams[key] = value
         }
@@ -356,6 +361,8 @@ const ProductPage = () => {
 
       const { data } = await axiosInstance.get('/product/search', {
         params: queryParams,
+
+
         paramsSerializer: params => {
           const query = new URLSearchParams()
           for (const key in params) {
@@ -385,25 +392,30 @@ const ProductPage = () => {
     }
   }
 
-  const fetchReviews = async (productId) => {
+  // will handle in future 
+  const handleAddToCart = async (productId,price) => {
     try {
-      const { data } = await axiosInstance.get(`/product/reviews/${productId}`)
-      setReviews(data.reviews || [])
+      const res = await axiosInstance.post("/payment/cart/add", {productId, quantity: 1, price});
+      toast.success(res.data.msg);
     } catch (error) {
-      console.error('Failed to fetch reviews:', error)
-      toast.error('Failed to fetch reviews')
+      toast.error(error.response?.data?.msg || "Something went wrong!");
     }
+
   }
 
-  const handleAddToCart = (productId) => {
-    if (authUser?.role === 'admin') return
-    toast.success('Added to cart')
-  }
+  const handleAddToWishlist = async (productId) => {
+   
+  
+    try {
+      const res = await axiosInstance.post(`/wishlist/add/${productId}`);
+      toast.success(res.data.msg || 'Added to wishlist');
+    } catch (error) {
+      console.error('Add to Wishlist Error:', error);
+      toast.error(error.response?.data?.msg || 'Something went wrong while adding to wishlist!');
+    }
 
-  const handleAddToWishlist = (productId) => {
-    if (authUser?.role === 'admin') return   
-    toast.success('Added to wishlist')
   }
+  
 
   const handleAddReview = async (productId) => {
     if (authUser?.role === 'admin') return
@@ -450,11 +462,16 @@ const ProductPage = () => {
             />
           </div>
 
+
+          {/* loadin stat*/}
+
           {loading && (
             <div className="flex justify-center mt-12">
               <Loader2 className="animate-spin text-blue-500 h-12 w-12" />
             </div>
           )}
+
+          {/* prod grid */}
 
           {!loading && (
             <>
@@ -506,12 +523,18 @@ const ProductPage = () => {
                         )}
 
                         {authUser?.role !== 'admin' && (
-                          <button
-                            onClick={() => handleAddToCart(product._id)}
-                            className="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
-                          >
-                            <ShoppingCart size={20} />
-                          </button>
+
+                        <button
+
+                        onClick={() => handleAddToCart(product._id,product.price)}
+                        //disabled={authUser?.role !== 'admin'}
+                        className="p-2 disabled:opacity-50 disabled:cursor-not-allowed
+
+                          bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
+                      >
+                        <ShoppingCart size={20} />
+                      </button>
+
                         )}
                       </div>
                     </div>
@@ -538,6 +561,9 @@ const ProductPage = () => {
               )}
             </>
           )}
+
+
+          {/* product details Modal */}
 
           {selectedProduct && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
