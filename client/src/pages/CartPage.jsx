@@ -21,7 +21,7 @@ const CartPage = () => {
   }, [checkAuth]);
 
   useEffect(() => {
-    // Initialize updatedCart with authUser.cart whenever authUser changes
+  
     if (authUser?.cart) {
       setUpdatedCart(authUser.cart.map(item => ({ ...item })));
     }
@@ -29,9 +29,9 @@ const CartPage = () => {
 
   const cartItems = updatedCart.length > 0 ? updatedCart : authUser?.cart || [];
 
-  // Update quantity logic
+
   const handleQuantityChange = (productId, newQuantity) => {
-    // Validate quantity
+  
     if (newQuantity < 1) return;
     
     setUpdatedCart((prevCart) => {
@@ -43,7 +43,7 @@ const CartPage = () => {
     });
   };
 
-  // Increment quantity
+ 
   const incrementQuantity = (productId) => {
     setUpdatedCart((prevCart) => {
       return prevCart.map((item) => 
@@ -54,7 +54,6 @@ const CartPage = () => {
     });
   };
 
-  // Decrement quantity
   const decrementQuantity = (productId) => {
     setUpdatedCart((prevCart) => {
       return prevCart.map((item) => 
@@ -65,13 +64,13 @@ const CartPage = () => {
     });
   };
 
-  // Remove item from cart
+
   const handleRemoveItem = (productId) => {
     setUpdatedCart((prevCart) => prevCart.filter(item => item.productId !== productId));
     toast.success('Item removed from cart');
   };
 
-  // Send updated cart to backend
+
   const handleUpdateCart = async () => {
     try {
       setUpdatingCart(true);
@@ -86,7 +85,7 @@ const CartPage = () => {
 
       if (res.data.success) {
         toast.success('Cart updated successfully!');
-        // Refresh auth to get the updated cart
+      
         await checkAuth();
       } else {
         toast.error('Failed to update the cart.');
