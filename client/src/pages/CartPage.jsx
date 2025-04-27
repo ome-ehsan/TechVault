@@ -22,7 +22,7 @@ const CartPage = () => {
   }, [checkAuth]);
 
   useEffect(() => {
-    // Initialize updatedCart with authUser.cart whenever authUser changes
+  
     if (authUser?.cart) {
       setUpdatedCart(authUser.cart.map(item => ({ ...item })));
     }
@@ -30,9 +30,9 @@ const CartPage = () => {
 
   const cartItems = updatedCart.length > 0 ? updatedCart : authUser?.cart || [];
 
-  // Update quantity logic
+
   const handleQuantityChange = (productId, newQuantity) => {
-    // Validate quantity
+  
     if (newQuantity < 1) return;
     
     setUpdatedCart((prevCart) => {
@@ -44,7 +44,7 @@ const CartPage = () => {
     });
   };
 
-  // Increment quantity
+ 
   const incrementQuantity = (productId) => {
     setUpdatedCart((prevCart) => {
       return prevCart.map((item) => 
@@ -55,7 +55,6 @@ const CartPage = () => {
     });
   };
 
-  // Decrement quantity
   const decrementQuantity = (productId) => {
     setUpdatedCart((prevCart) => {
       return prevCart.map((item) => 
@@ -66,11 +65,12 @@ const CartPage = () => {
     });
   };
 
-  // Remove item from cart
+
   const handleRemoveItem = (productId) => {
     setUpdatedCart((prevCart) => prevCart.filter(item => item.productId !== productId));
     toast.success('Item removed from cart');
   };
+
 
   const handleDeleteCart = async ()=> {
     try {
@@ -82,7 +82,6 @@ const CartPage = () => {
     }
   }
 
-  // Send updated cart to backend
   const handleUpdateCart = async () => {
     try {
       setUpdatingCart(true);
@@ -96,8 +95,12 @@ const CartPage = () => {
       const res = await axiosInstance.post("/payment/cart/add", { updates });
 
       if (res.data.success) {
+
+        toast.success('Cart updated successfully!');
+      
         toast.success(res.data.msg);
         // Refresh auth to get the updated cart
+
         await checkAuth();
       } else {
         toast.error( err?.response?.data?.msg || 'Failed to update the cart.');

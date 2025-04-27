@@ -96,10 +96,18 @@ const ProductPage = () => {
 
   }
 
-  const handleAddToWishlist = (productId) => {
-    if(authUser?.role === 'admin') return   
-    toast.success('Added to wishlist')
+  const handleAddToWishlist = async (productId) => {
+   
+  
+    try {
+      const res = await axiosInstance.post(`/wishlist/add/${productId}`);
+      toast.success(res.data.msg || 'Added to wishlist');
+    } catch (error) {
+      console.error('Add to Wishlist Error:', error);
+      toast.error(error.response?.data?.msg || 'Something went wrong while adding to wishlist!');
+    }
   }
+  
 
   return (
     <div className="min-h-screen bg-gray-900 pt-20 pb-8 px-4 sm:px-6 lg:px-8">
