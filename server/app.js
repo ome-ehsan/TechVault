@@ -6,7 +6,11 @@ import { connectDB } from './utils/dbConfig.js';
 import { authRouter } from './routes/authRoutes.js';
 import { productRouter } from './routes/productRoutes.js';
 import { paymentRouter } from './routes/paymentRoutes.js';
+
+//import { reviewRouter } from "./routes/reviewRoutes.js";
+
 import { wishlistRouter } from './routes/wishlistRoutes.js';
+
 
 dotenv.config();
 
@@ -22,7 +26,11 @@ app.use(cors({
 app.use("/api/auth",authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/payment",paymentRouter);
+
+//app.use("/api/reviews", reviewRouter);
+
 app.use("/api/wishlist", wishlistRouter);
+
 
 
 app.listen( port, ()=>{
