@@ -59,15 +59,27 @@ const OrderPage = () => {
     }
   };
 
-  const handleDownloadInvoice = async (invoiceUrl, orderId) => {
+  const handleDownloadInvoice = async (orderId) => {
     try {
-      // Will implement invoice download logic later
-      if (invoiceUrl) {
-        toast.success('Downloading invoice');
-        console.log('Download invoice:', invoiceUrl);
-      } else {
-        toast.error('Invoice not available');
-      }
+      const loadingToast = toast.loading('Generating invoice...');
+      const response = await axiosInstance.get(`/payment/generate-inv/${orderId}`, {
+        responseType: 'blob', // tells axios to handle response as binary data
+      });
+    
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `TechVault-Invoice-${orderId}.pdf`;
+ 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.dismiss(loadingToast);
+      toast.success('Invoice downloaded successfully');
+      
     } catch (error) {
       toast.error('Failed to download invoice');
       console.error("Error downloading invoice:", error);
@@ -235,7 +247,7 @@ const OrderPage = () => {
                     )}
                     
                     <button 
-                      onClick={() => handleDownloadInvoice(order.invoiceUrl, order._id)}
+                      onClick={() => handleDownloadInvoice(order._id)}
                       className="px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors flex items-center"
                     >
                       <Download size={16} className="mr-1" />

@@ -3,7 +3,8 @@ import { orderController, sslController, paymentSuccessController, paymentFailur
         addToCartController, reduceCartItemController,
         clearCartController,
         getOrdersController,
-        cancelOrderController
+        cancelOrderController,
+        invoiceController
 } from '../controller/paymentController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
@@ -14,6 +15,7 @@ paymentRouter.post("/order",authenticate,orderController);
 paymentRouter.post("/init",authenticate,sslController);
 paymentRouter.post("/success", paymentSuccessController);
 paymentRouter.post("/failure", paymentFailureController);
+paymentRouter.get("/generate-inv/:orderId", authenticate, invoiceController);
 //////////////////////imtiaj/////////////////////////
 paymentRouter.post("/cart/add", authenticate, addToCartController);
 paymentRouter.post("/cart/reduce", authenticate, reduceCartItemController);

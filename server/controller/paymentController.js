@@ -2,7 +2,8 @@ import { Order } from "../model/orderModel.js";
 import { Product } from "../model/productModel.js";
 import { User } from "../model/userModel.js";
 import SSLCommerzPayment from 'sslcommerz-lts';
-import { Types} from "mongoose";
+import {jsPDF} from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -427,6 +428,185 @@ export const cancelOrderController = async (req, res) => {
     return res.status(500).json({ msg: "Internal server error" });
   }
 };
+
+
+
+////////// INVOICE CONTROLLER ?//////////////
+export const invoiceController = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    if (!orderId) return res.status(404).json({ msg: "Order not found" });
+
+    const order = await Order.findById(orderId).populate('items.productId', 'name price').exec();
+
+    // Create a new PDF document
+    const doc = new jsPDF();
+    
+    // Set document properties
+    const pageWidth = doc.internal.pageSize.width;
+    
+    // Add company logo/header
+    doc.setFillColor(0, 20, 50); // Dark blue header
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255); // White text
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TechVault', 15, 20);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Your Premium Tech Partner', 15, 28);
+    doc.setFontSize(20);
+    doc.setTextColor(0, 20, 50);
+    doc.setFont('helvetica', 'bold');
+    doc.text('INVOICE', pageWidth - 15, 20, { align: 'right' });  // invoice
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+
+    const invoiceDate = new Date(order.createdAt);
+    const formattedDate = invoiceDate.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    
+    // Invoice information
+    doc.setFont('helvetica', 'bold');
+    doc.text('Invoice Details:', 15, 50);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Invoice Number: INV-${orderId.slice(-8)}`, 15, 58);
+    doc.text(`Transaction ID: ${order.tranId}`, 15, 66);
+    doc.text(`Date: ${formattedDate}`, 15, 74);
+    // Customer information
+    doc.setFont('helvetica', 'bold');
+    doc.text('Customer Details:', 15, 88);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Customer ID: ${order.userId}`, 15, 96);
+    doc.text(`Shipping Address:`, 15, 104);
+    doc.text(`${order.shippingInfo.address}`, 15, 112);
+    doc.text(`${order.shippingInfo.city}, ${order.shippingInfo.district}`, 15, 120);
+    doc.text(`${order.shippingInfo.country}`, 15, 128);
+
+    // Payment status with colored badge
+    doc.setFont('helvetica', 'bold');
+    const paymentText = `Payment Status: ${order.paymentStatus.toUpperCase()}`;
+    const paymentTextWidth = doc.getStringUnitWidth(paymentText) * 10 / doc.internal.scaleFactor;
+    
+    // Set badge color based on payment status
+    if (order.paymentStatus.toLowerCase() === 'paid') {
+      doc.setFillColor(40, 167, 69); // Green for paid
+    } else {
+      doc.setFillColor(220, 53, 69); // Red for unpaid/pending
+    }
+    
+    doc.roundedRect(pageWidth - paymentTextWidth - 25, 50, paymentTextWidth + 10, 10, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.text(paymentText, pageWidth - 20, 57, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+    
+    // Products table
+    doc.setFont('helvetica', 'bold');
+    doc.text('Order Items:', 15, 145);
+    
+    const tableColumn = ['No.', 'Product', 'Quantity', 'Price (BDT)', 'Subtotal (BDT)'];
+
+    const tableRows = order.items.map((item, index) => {
+      const price = item.productId.price || 0;
+      const subtotal = price * item.quantity;
+      return [
+        index + 1,
+        item.prodName,
+        item.quantity,
+        price.toLocaleString(),
+        subtotal.toLocaleString()
+      ];
+    });
+
+    // Fix: Pass doc as the first parameter to autoTable
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 150,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [0, 20, 50],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240]
+      },
+      columnStyles: {
+        0: { cellWidth: 10 }, // Reduced width
+        1: { cellWidth: 'auto' },
+        2: { cellWidth: 20, halign: 'center' }, // Reduced width
+        3: { cellWidth: 30, halign: 'right' }, // Reduced width
+        4: { cellWidth: 30, halign: 'right' } // Reduced width
+      },
+      styles: {
+        fontSize: 9, // Smaller font size
+        overflow: 'linebreak',
+        cellPadding: 3 // Reduced padding
+      },
+      margin: { left: 15, right: 15 }
+    });
+    
+    // Fix: Use doc.lastAutoTable instead of doc.previousAutoTable
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text('Subtotal:', pageWidth - 60, finalY);
+    doc.text(`${Number(order.total).toLocaleString()} BDT`, pageWidth - 15, finalY, { align: 'right' });
+    
+    doc.text('Tax (5%):', pageWidth - 60, finalY + 8);
+    const tax = Math.round(Number(order.total) * 0.05);
+    doc.text(`${tax.toLocaleString()} BDT`, pageWidth - 15, finalY + 8, { align: 'right' });
+    
+    doc.setDrawColor(0, 20, 50);
+    doc.line(pageWidth - 100, finalY + 12, pageWidth - 15, finalY + 12);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Grand Total:', pageWidth - 60, finalY + 20);
+    const grandTotal = Number(order.total) + tax;
+    doc.text(`${grandTotal.toLocaleString()} BDT`, pageWidth - 15, finalY + 20, { align: 'right' });
+    
+    // Footer
+    const pageHeight = doc.internal.pageSize.height;
+    
+    doc.setDrawColor(0, 20, 50);
+    doc.line(15, pageHeight - 35, pageWidth - 15, pageHeight - 35);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('Thank you for shopping with TechVault! If you have any questions, please contact our customer service.', pageWidth / 2, pageHeight - 28, { align: 'center' });
+    doc.text('Phone: +880 1234-567890 | Email: support@techvault.com | Website: www.techvault.com', pageWidth / 2, pageHeight - 20, { align: 'center' });
+    
+    // QR Code placeholder (would need a library for actual QR code generation)
+    doc.setDrawColor(0);
+    doc.roundedRect(15, pageHeight - 70, 30, 30, 2, 2);
+    doc.setFontSize(7);
+    doc.text('Scan for invoice verification', 15, pageHeight - 36);
+    
+    // Add invoice number and page number at the bottom
+    doc.setFontSize(8);
+    doc.text(`Invoice #INV-${orderId.slice(-8)}`, 15, pageHeight - 10);
+    doc.text('Page 1 of 1', pageWidth - 15, pageHeight - 10, { align: 'right' });
+
+    const pdfBuffer = doc.output('arraybuffer');
+    
+    const invoiceUrl = `/invoices/INV-${orderId}.pdf`;
+    await Order.findByIdAndUpdate(orderId, { invoiceUrl });
+    
+    // Sending the PDF as response
+    res.contentType('application/pdf');
+    res.send(Buffer.from(pdfBuffer));
+
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    res.status(500).json({ msg: "Internal server error" });
+  }
+}
+
 
 
 
