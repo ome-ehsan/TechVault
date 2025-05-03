@@ -345,15 +345,10 @@ const ProductPage = () => {
         category: selectedCategory
       }
       
-
-      
       if (activeFilters.priceMin) queryParams.priceMin = activeFilters.priceMin
       if (activeFilters.priceMax) queryParams.priceMax = activeFilters.priceMax
       
-      
       Object.entries(activeFilters).forEach(([key, value]) => {
-        
-
         if (key !== 'priceMin' && key !== 'priceMax' && Array.isArray(value)) {
           queryParams[key] = value
         }
@@ -361,8 +356,6 @@ const ProductPage = () => {
 
       const { data } = await axiosInstance.get('/product/search', {
         params: queryParams,
-
-
         paramsSerializer: params => {
           const query = new URLSearchParams()
           for (const key in params) {
@@ -393,19 +386,16 @@ const ProductPage = () => {
   }
 
   // will handle in future 
-  const handleAddToCart = async (productId,price) => {
+  const handleAddToCart = async (productId, price) => {
     try {
       const res = await axiosInstance.post("/payment/cart/add", {productId, quantity: 1, price});
       toast.success(res.data.msg);
     } catch (error) {
       toast.error(error.response?.data?.msg || "Something went wrong!");
     }
-
   }
 
   const handleAddToWishlist = async (productId) => {
-   
-  
     try {
       const res = await axiosInstance.post(`/wishlist/add/${productId}`);
       toast.success(res.data.msg || 'Added to wishlist');
@@ -413,30 +403,45 @@ const ProductPage = () => {
       console.error('Add to Wishlist Error:', error);
       toast.error(error.response?.data?.msg || 'Something went wrong while adding to wishlist!');
     }
+  }
 
+  const fetchReviews = async (productId) => {
+    try {
+      const { data } = await axiosInstance.get(`/reviews/${productId}`)
+      setReviews(data || []) // Handle both formats: direct array or {reviews: [...]}
+    } catch (error) {
+      toast.error('Failed to load reviews')
+      setReviews([])
+    }
   }
   
-
   const handleAddReview = async (productId) => {
     if (authUser?.role === 'admin') return
-
+  
     setReviewLoading(true)
     try {
       const reviewData = {
-        rating: newReview.rating,
+        score: newReview.rating,
         comment: newReview.comment,
+        userId: authUser._id,
+        productId
       }
-      const { data } = await axiosInstance.post(`/product/reviews/${productId}`, reviewData)
+      
+      const { data } = await axiosInstance.post(`/reviews`, reviewData)
       toast.success('Review added successfully')
-      setReviews(prev => [...prev, data.review])
-      setNewReview({ rating: 0, comment: '' }) // Clear review form
+      
+      // Handle both response formats - either data directly or data.review
+      const newReviewData = data.review || data
+      setReviews(prev => [...prev, newReviewData])
+      setNewReview({ rating: 0, comment: '' })
     } catch (error) {
-      toast.error('Failed to add review')
+      console.error('Review submission error:', error)
+      toast.error(error.response?.data?.message || 'Failed to add review')
     } finally {
       setReviewLoading(false)
     }
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-900 pt-20 pb-8 px-4 sm:px-6 lg:px-8">
       <div className="flex gap-8">
@@ -462,17 +467,14 @@ const ProductPage = () => {
             />
           </div>
 
-
-          {/* loadin stat*/}
-
+          {/* loading state */}
           {loading && (
             <div className="flex justify-center mt-12">
               <Loader2 className="animate-spin text-blue-500 h-12 w-12" />
             </div>
           )}
 
-          {/* prod grid */}
-
+          {/* product grid */}
           {!loading && (
             <>
               {products.length === 0 ? (
@@ -523,18 +525,12 @@ const ProductPage = () => {
                         )}
 
                         {authUser?.role !== 'admin' && (
-
-                        <button
-
-                        onClick={() => handleAddToCart(product._id,product.price)}
-                        //disabled={authUser?.role !== 'admin'}
-                        className="p-2 disabled:opacity-50 disabled:cursor-not-allowed
-
-                          bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
-                      >
-                        <ShoppingCart size={20} />
-                      </button>
-
+                          <button
+                            onClick={() => handleAddToCart(product._id, product.price)}
+                            className="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
+                          >
+                            <ShoppingCart size={20} />
+                          </button>
                         )}
                       </div>
                     </div>
@@ -562,9 +558,7 @@ const ProductPage = () => {
             </>
           )}
 
-
           {/* product details Modal */}
-
           {selectedProduct && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
               <div className="bg-gray-800 rounded-xl max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
@@ -616,7 +610,7 @@ const ProductPage = () => {
                       </button>
                       
                       <button
-                        onClick={() => handleAddToCart(selectedProduct._id)}
+                        onClick={() => handleAddToCart(selectedProduct._id, selectedProduct.price)}
                         disabled={authUser?.role === 'admin'}
                         className="flex-1 flex items-center justify-center gap-2 
                           bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg
@@ -637,7 +631,7 @@ const ProductPage = () => {
                             <div key={index} className="bg-gray-700 p-4 rounded-lg">
                               <div className="flex items-center space-x-2">
                                 <Star size={16} className="text-yellow-400" />
-                                <span className="font-semibold text-gray-100">{review.rating} / 5</span>
+                                <span className="font-semibold text-gray-100">{review.score} / 5</span>
                               </div>
                               <p className="text-gray-300 mt-2">{review.comment}</p>
                             </div>
@@ -646,34 +640,39 @@ const ProductPage = () => {
                       </div>
 
                       {/* Add Review Form */}
-                      <div className="mt-6">
-                        <h4 className="text-sm font-medium text-gray-300">Add a Review</h4>
-                        <div className="flex items-center space-x-2 mt-2">
-                          <select
-                            value={newReview.rating}
-                            onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
-                            className="bg-gray-700 text-gray-100 p-2 rounded-lg"
-                          >
-                            <option value="0">Rate this product</option>
-                            {[1, 2, 3, 4, 5].map(rating => (
-                              <option key={rating} value={rating}>{rating} Star{rating > 1 ? 's' : ''}</option>
-                            ))}
-                          </select>
-                          <textarea
-                            value={newReview.comment}
-                            onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                            placeholder="Your review"
-                            className="w-full p-2 bg-gray-700 text-gray-100 rounded-lg"
-                          />
+                      {authUser?.role !== 'admin' && (
+                        <div className="mt-6">
+                          <h4 className="text-sm font-medium text-gray-300">Add a Review</h4>
+                          <div className="mt-2">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <select
+                                value={newReview.rating}
+                                onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
+                                className="bg-gray-700 text-gray-100 p-2 rounded-lg"
+                              >
+                                <option value="0">Rate this product</option>
+                                {[1, 2, 3, 4, 5].map(rating => (
+                                  <option key={rating} value={rating}>{rating} Star{rating > 1 ? 's' : ''}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <textarea
+                              value={newReview.comment}
+                              onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                              placeholder="Your review"
+                              className="w-full p-2 bg-gray-700 text-gray-100 rounded-lg"
+                              rows="3"
+                            />
+                            <button
+                              onClick={() => handleAddReview(selectedProduct._id)}
+                              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg w-full"
+                              disabled={reviewLoading || newReview.rating === 0 || newReview.comment === ''}
+                            >
+                              {reviewLoading ? 'Submitting...' : 'Submit Review'}
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => handleAddReview(selectedProduct._id)}
-                          className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg"
-                          disabled={reviewLoading || newReview.rating === 0 || newReview.comment === ''}
-                        >
-                          {reviewLoading ? 'Submitting...' : 'Submit Review'}
-                        </button>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>

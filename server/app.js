@@ -10,6 +10,7 @@ import { paymentRouter } from './routes/paymentRoutes.js';
 //import { reviewRouter } from "./routes/reviewRoutes.js";
 
 import { wishlistRouter } from './routes/wishlistRoutes.js';
+import router from './routes/reviewRoutes.js';
 
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use(cors({
 app.use("/api/auth",authRouter);
 app.use("/api/product", productRouter);
 app.use("/api/payment",paymentRouter);
+app.use("/api/reviews", router);
 
 //app.use("/api/reviews", reviewRouter);
 
