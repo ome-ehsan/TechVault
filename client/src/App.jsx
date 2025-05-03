@@ -16,6 +16,9 @@ import PaymentFailure from "./pages/PaymentFailure"
 import OrderPage from "./pages/OrderPage"
 import CustomerProfile from "./pages/CustomerProfile"
 import CartPage from "./pages/CartPage"
+import WishlistPage from "./pages/wishlistPage"
+
+
 
 
 
@@ -63,6 +66,8 @@ const App = () => {
             <Route path="/success" element = { authUser? <PaymentSuccess/> : <Navigate to="/login"/>} />
             <Route path="/failure" element = { authUser? <PaymentFailure/> : <Navigate to="/login"/>} />
             <Route path="/orders" element = { authUser? <OrderPage/> : <Navigate to="/login"/>} />
+
+            <Route path="/wishlist" element = { authUser? <WishlistPage/> : <Navigate to="/login"/>} />
 
             <Route path="/cart" element={ <CartPage /> } />
 
