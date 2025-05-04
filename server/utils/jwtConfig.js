@@ -4,11 +4,11 @@ export const generateJWT = (userId, res) => {
     const token = jwt.sign({ userId }, process.env.SECRET, { expiresIn: "3d" });
 
     res.cookie("jwt", token, {
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
+        maxAge: 60*60*24*1000*3,  // 3 day
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === "development" ? "Lax" : "None",
-        secure: process.env.NODE_ENV !== "development"
-    });
+        sameSite: "none",  // Changed from "strict" to "none"
+        secure: true  // Must be true when sameSite is "none"
+    })
 
     return token;
 };
