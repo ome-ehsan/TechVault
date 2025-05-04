@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { categoryToSpecMap } from '../../../shared/categoryToSpecMap'
+import { categoryToSpecMap } from '../libs/categoryToSpecMap'
 
 const FilterBar = ({ 
   selectedCategory,
