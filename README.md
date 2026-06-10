@@ -1,6 +1,19 @@
 # TechVault
 
-A full-stack JavaScript application with a React-based frontend and Express.js backend.
+## What is it?
+
+TechVault is a **web application** built with modern JavaScript technologies. It's a starter project that combines a **frontend** (what users see and interact with) and a **backend** (the server that processes data).
+
+Think of it as a template to build web apps quickly—you get the basic structure and tools already set up.
+
+## What does it do?
+
+Right now, TechVault is a **blank canvas**. It doesn't have specific features yet, but it's ready for you to build on. It comes with:
+- A **React-based interface** (frontend) that runs in your browser
+- An **Express.js server** (backend) that can handle requests and serve data
+- All the tools and configuration needed to start developing immediately
+
+---
 
 ## Project Structure
 
